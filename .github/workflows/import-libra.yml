@@ -10,30 +10,29 @@ jobs:
   import:
     runs-on: ubuntu-latest
     steps:
-      - name: Descargar Libra sin ejecutar su código
+      - name: Descargar snapshot verificado
         env:
           EXPECTED_SHA: b5ca55153330fac0fe38a84c45b995f02f560f6b
         run: |
           set -euo pipefail
           git clone --depth 1 --branch develop https://github.com/vaoan/Libra.git libra-source
           cd libra-source
-          actual="$(git rev-parse HEAD)"
-          if [ "$actual" != "$EXPECTED_SHA" ]; then
-            echo "::error::La rama develop cambió; revisar nuevo commit antes de importar."
-            exit 1
-          fi
+          test "$(git rev-parse HEAD)" = "$EXPECTED_SHA"
           test -f LICENSE
-          grep -q "MIT License" LICENSE
-          echo "Snapshot verificado: $actual"
+          grep -q 'MIT License' LICENSE
 
-      - name: Importar a rama separada sin modificar main
+      - name: Importar archivos con historial independiente
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
           cd libra-source
+          rm -rf .git
+          git init -b libra-import
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
-          git push origin HEAD:refs/heads/libra-import
-          echo "Importación completada en rama libra-import. No se ejecutaron builds ni migraciones."
+          git add -A
+          git commit -m "chore: import verified Libra snapshot b5ca551"
+          git remote add destination "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          git push destination HEAD:refs/heads/libra-import
+          echo "Rama libra-import creada; main sin cambios."
