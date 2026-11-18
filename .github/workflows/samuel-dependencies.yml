@@ -1,0 +1,34 @@
+name: Samuel Store 2.0 - dependencias aisladas
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  dependencies:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      CI: "true"
+      NEXT_TELEMETRY_DISABLED: "1"
+    steps:
+      - name: Descargar samuel-dev sin credenciales persistentes
+        uses: actions/checkout@v4
+        with:
+          ref: samuel-dev
+          persist-credentials: false
+      - name: Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Preparar pnpm sin ejecutar scripts del repositorio
+        run: corepack enable
+      - name: Verificar estructura
+        run: node scripts/samuel-preflight.mjs
+      - name: Instalar dependencias sin scripts postinstall
+        run: |
+          corepack pnpm install --frozen-lockfile --ignore-scripts
+      - name: Revisar dependencias vulnerables
+        run: corepack pnpm audit --audit-level high
