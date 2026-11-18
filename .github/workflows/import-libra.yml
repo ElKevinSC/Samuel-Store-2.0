@@ -27,7 +27,9 @@ jobs:
         run: |
           set -euo pipefail
           cd libra-source
-          rm -rf .git
+          rm -rf .git .github/workflows
+          # Excluir archivos de configuración local y posibles secretos del origen
+          find . -type f \( -name '.env' -o -name '.env.*' -o -name '*.pem' -o -name '*.key' -o -name '*.p12' \) -delete
           git init -b libra-import
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
