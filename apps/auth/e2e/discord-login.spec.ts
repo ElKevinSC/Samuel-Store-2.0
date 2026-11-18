@@ -1,0 +1,174 @@
+/* eslint-disable playwright/no-conditional-in-test -- Discord's hosted
+ * sign-in shows different screens depending on session state, and this spec
+ * has to walk whichever appears. It is a manual-only harness: the test is
+ * unconditionally skipped in CI because the provider blocks automated
+ * browsers, so these branches never run there. See
+ * docs/standards/quality-gates.md for what that leaves untested. */
+import { type BrowserContext, chromium, expect, test } from "@playwright/test";
+import * as path from "node:path";
+
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const { resolveE2EAppUrls } = require(
+  path.resolve(__dirname, "../../../scripts/app-url-resolver.js"),
+);
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const { getE2EExtraHTTPHeaders } = require(
+  path.resolve(__dirname, "../../../scripts/app-url-resolver.js"),
+);
+
+const PROFILE_DIR = path.join(__dirname, ".auth", "chrome-profile");
+const AUTH_URL = resolveE2EAppUrls().auth;
+const AUTH_HOST_PATTERN = new RegExp(
+  new URL(AUTH_URL).hostname.replace(/\./g, "\\."),
+);
+
+test("Discord OAuth login flow", async () => {
+  // Requires a pre-seeded Chrome profile with an active Discord session.
+  // Run manually only — never in CI or staging.
+  test.skip(
+    true,
+    "Discord OAuth requires live credentials and manual execution — not suitable for automated runs",
+  );
+
+  test.setTimeout(120_000);
+
+  const context: BrowserContext = await chromium.launchPersistentContext(
+    PROFILE_DIR,
+    {
+      headless: false,
+      channel: "chrome",
+      viewport: { width: 1280, height: 720 },
+      extraHTTPHeaders: getE2EExtraHTTPHeaders(),
+      args: ["--disable-blink-features=AutomationControlled"],
+    },
+  );
+
+  const page = context.pages()[0] || (await context.newPage());
+
+  try {
+    // 1. Login page
+    await page.goto(`${AUTH_URL}/en/login`);
+    await expect(page.getByTestId("login-card")).toBeVisible();
+    console.log("[e2e] ✓ Login page loaded");
+
+    // 2. Click Discord
+    await page.getByTestId("login-discord").click();
+    console.log("[e2e] Clicked Discord...");
+
+    // 3. Wait for Discord (login or authorize page)
+    await page.waitForURL(/discord\.com/, { timeout: 30000 });
+    console.log("[e2e] ✓ On Discord:", page.url());
+
+    // 4. Handle Discord — could be login page OR authorize page
+    //    Wait for either the login form or the authorize button
+    const emailInput = page.locator('input[name="email"]');
+    // Discord's authorize button — use multiple strategies.
+    // Class-based selection, which the e2e-selectors rule bans, because this
+    // is Discord's own markup: there is no test id to add and their class
+    // names are the only stable-ish handle. Disabled rather than left to
+    // report, so the ban stays meaningful for pages we do control.
+    // eslint-disable-next-line no-restricted-syntax -- third-party markup
+    const authorizeBtn = page
+      .locator(
+        'button:has-text("Authorize"), button:has-text("Autorizar"), button:has-text("Allow"), button[class*="colorBrand"], button[class*="lookFilled"]:not(:has-text("Cancel"))',
+      )
+      .first();
+
+    console.log("[e2e] Waiting for Discord page to load...");
+    // Discord's page can settle into any of three states (login form,
+    // authorize prompt, or straight back to the app), and the branch below
+    // reads the URL to find out which. There is no single element to wait for
+    // without first knowing the answer, and the markup belongs to a third
+    // party.
+    // eslint-disable-next-line playwright/no-wait-for-timeout -- see above
+    await page.waitForTimeout(5000);
+
+    // Determine what Discord is showing
+    let firstVisible: "login" | "authorize" | "redirected";
+    if (AUTH_HOST_PATTERN.test(page.url())) {
+      firstVisible = "redirected";
+    } else if (page.url().includes("/login")) {
+      await emailInput.waitFor({ state: "visible", timeout: 30000 });
+      firstVisible = "login";
+    } else {
+      // On authorize page — scroll down to reveal the accept button
+      console.log("[e2e] On authorize page, scrolling to reveal button...");
+      await page.mouse.wheel(0, 500);
+      // Also try scrolling inside the modal
+      // eslint-disable-next-line no-restricted-syntax -- third-party markup, see above
+      const modal = page
+        .locator('[class*="modal"], [class*="oauth2"], [role="dialog"]')
+        .first();
+      if (await modal.isVisible().catch(() => false)) {
+        await modal.evaluate((el) => el.scrollTo(0, el.scrollHeight));
+      }
+      await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+      await page.screenshot({ path: "e2e/screenshots/discord-scrolled.png" });
+      await authorizeBtn.waitFor({ state: "visible", timeout: 15000 });
+      firstVisible = "authorize";
+    }
+
+    console.log("[e2e] Discord showed:", firstVisible);
+
+    if (firstVisible === "login") {
+      await emailInput.fill(discordEmail!);
+      await page.locator('input[name="password"]').fill(discordPassword!);
+      await page.locator('button[type="submit"]').click();
+      console.log("[e2e] ✓ Submitted credentials");
+
+      // Wait for authorize page or redirect
+      const afterLogin = await Promise.race([
+        authorizeBtn
+          .waitFor({ state: "visible", timeout: 30000 })
+          .then(() => "authorize" as const),
+        page
+          .waitForURL(AUTH_HOST_PATTERN, { timeout: 30000 })
+          .then(() => "redirected" as const),
+      ]);
+
+      if (afterLogin === "authorize") {
+        await page.screenshot({
+          path: "e2e/screenshots/discord-authorize.png",
+        });
+        await authorizeBtn.click();
+        console.log("[e2e] ✓ Clicked Authorize");
+        await page.waitForURL(AUTH_HOST_PATTERN, { timeout: 30000 });
+      }
+    } else if (firstVisible === "authorize") {
+      await page.screenshot({ path: "e2e/screenshots/discord-authorize.png" });
+      await authorizeBtn.click();
+      console.log("[e2e] ✓ Clicked Authorize");
+      await page.waitForURL(AUTH_HOST_PATTERN, { timeout: 30000 });
+    }
+    // else: already redirected back
+
+    console.log("[e2e] ✓ Back on app:", page.url());
+
+    // The account-card check below waits on its own (isVisible has a
+    // timeout), so settling here was redundant.
+    await page.screenshot({ path: "e2e/screenshots/final-page.png" });
+    console.log("[e2e] Final URL:", page.url());
+
+    // 6. Verify account page
+    const isAccountPage = await page
+      .getByTestId("account-card")
+      .isVisible({ timeout: 5000 })
+      .catch(() => false);
+
+    if (!isAccountPage) {
+      const cookies = await context.cookies();
+      console.log(
+        "[e2e] Cookies:",
+        cookies.map((c) => c.name),
+      );
+      console.log("[e2e] URL:", page.url());
+    }
+
+    expect(isAccountPage, "Should show account page").toBe(true);
+    await expect(page.getByTestId("account-email")).not.toBeEmpty();
+    await expect(page.getByTestId("nav-user-email")).toBeVisible();
+    console.log("[e2e] ✓ All passed!");
+  } finally {
+    await context.close();
+  }
+});

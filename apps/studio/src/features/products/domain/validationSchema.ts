@@ -1,0 +1,114 @@
+import { SECTION_TYPES } from "shared/types";
+import { z } from "zod";
+
+import { CURRENCY_CODE_LENGTH } from "./constants";
+
+/** Translator function for validation messages */
+type ValidationT = (key: string) => string;
+
+/** Create section item schema with translated messages */
+function createSectionItemSchema(t: ValidationT) {
+  return z
+    .object({
+      title_en: z.string().default(""),
+      title_es: z.string().default(""),
+      description_en: z.string().default(""),
+      description_es: z.string().default(""),
+      icon: z.string().optional().default(""),
+      image_url: z.string().optional().default(""),
+      sort_order: z.number().default(0),
+    })
+    .refine((item) => item.title_en.trim() || item.title_es.trim(), {
+      message: t("itemTitleRequired"),
+      path: ["title_en"],
+    });
+}
+
+/** Create section schema with translated messages */
+function createSectionSchema(t: ValidationT) {
+  const sectionItemSchema = createSectionItemSchema(t);
+
+  return z
+    .object({
+      name_en: z.string().default(""),
+      name_es: z.string().default(""),
+      type: z.enum(SECTION_TYPES).default("cards"),
+      sort_order: z.number().default(0),
+      items: z.array(sectionItemSchema).default([]),
+    })
+    .refine((section) => section.name_en.trim() || section.name_es.trim(), {
+      message: t("sectionNameRequired"),
+      path: ["name_en"],
+    })
+    .refine((section) => section.items.length > 0, {
+      message: t("sectionItemsRequired"),
+      path: ["items"],
+    });
+}
+
+/** Product image schema */
+export const productImageSchema = z.object({
+  url: z.string().url(),
+  alt: z.string().optional().default(""),
+  sort_order: z.number().int().nonnegative(),
+  is_cover: z.boolean().optional().default(false),
+  is_store_cover: z.boolean().optional().default(false),
+  fit: z.enum(["cover", "contain"]).optional().default("cover"),
+});
+
+/**
+ * Create the product form schema with translated validation messages.
+ *
+ * Usage:
+ * ```ts
+ * const t = useTranslations("form.validation");
+ * const schema = createProductFormSchema(t);
+ * ```
+ */
+export function createProductFormSchema(t: ValidationT) {
+  const sectionSchema = createSectionSchema(t);
+
+  return z.object({
+    name_en: z.string().min(1, t("required")),
+    name_es: z.string().optional().default(""),
+    description_en: z.string().optional().default(""),
+    description_es: z.string().optional().default(""),
+    tagline_en: z.string().optional().default(""),
+    tagline_es: z.string().optional().default(""),
+    long_description_en: z.string().optional().default(""),
+    long_description_es: z.string().optional().default(""),
+    type: z.enum(["merch", "digital", "service", "ticket"]),
+    category: z.enum([
+      "fursuits",
+      "merch",
+      "art",
+      "events",
+      "digital",
+      "deals",
+    ]),
+    price: z.coerce.number().int().positive(t("positiveNumber")),
+    currency: z.string().min(CURRENCY_CODE_LENGTH).max(CURRENCY_CODE_LENGTH),
+    compare_at_price: z.coerce
+      .number()
+      .int()
+      .nonnegative()
+      .nullable()
+      .optional()
+      .default(null),
+    tags: z.string().optional().default(""),
+    featured: z.boolean().optional().default(false),
+    is_active: z.boolean().optional().default(true),
+    images: z.array(productImageSchema).optional().default([]),
+    sections: z.array(sectionSchema).optional().default([]),
+    max_quantity: z.number().int().nonnegative().nullable().default(null),
+    refundable: z.boolean().nullable().default(null),
+  });
+}
+
+/** Static schema for type inference only (no translated messages) */
+// Derived from the factory's return type rather than from a module-level
+// instance: the schema was only ever built at import time to feed z.infer,
+// so nothing needs to construct one.
+export type ProductFormValues = z.infer<
+  ReturnType<typeof createProductFormSchema>
+>;

@@ -1,0 +1,169 @@
+"use client";
+
+import { createBrowserSupabaseClient } from "api/supabase";
+import { useEffect, useMemo, useRef, useState } from "react";
+
+import {
+  clearPermCache,
+  readPermCache,
+  writePermCache,
+} from "./permCachePersistence";
+import { useInitialGrantedKeys } from "./PermissionsContext";
+import { useCurrentUser } from "./useCurrentUser";
+
+export type PermissionRequirementMode = "all" | "any";
+
+function normalizeRequired(
+  required: string | readonly string[],
+): readonly string[] {
+  if (typeof required === "string") {
+    return [required];
+  }
+
+  return required;
+}
+
+export function matchesPermissions(
+  grantedKeys: string[],
+  required: string | readonly string[],
+  mode: PermissionRequirementMode = "all",
+): boolean {
+  const requiredKeys = normalizeRequired(required);
+
+  if (requiredKeys.length === 0) return true;
+  if (mode === "any") {
+    return requiredKeys.some((key) => grantedKeys.includes(key));
+  }
+
+  return requiredKeys.every((key) => grantedKeys.includes(key));
+}
+
+export function useCurrentUserPermissions() {
+  const { user, isAuthenticated, isLoading: authLoading } = useCurrentUser();
+  const supabase = useMemo(() => createBrowserSupabaseClient(), []);
+  // Server layouts pass the cookie value via PermissionsProvider so SSR
+  // and client hydration both start with the same granted keys — no flicker.
+  const initialGrantedKeys = useInitialGrantedKeys();
+  // Seeded ONLY from the server's value, never from readPermCache(). The
+  // server rendered from the cookies on its own request; a cache cookie
+  // written after that — by the permissions fetch on the previous page, or by
+  // another tab — was not visible to it. Using it here made the client's first
+  // render disagree with the server HTML, which React reports as #418 "server
+  // rendered text didn't match" and recovers from by throwing the server tree
+  // away. Reproduced on landing's first load after sign-in: the server
+  // rendered nav links [auth, landing, store], the client [auth, landing,
+  // payments, store]. The cache is still used — see the effect below, which
+  // applies it immediately after hydration.
+  const [grantedKeys, setGrantedKeys] = useState<string[]>(initialGrantedKeys);
+
+  // Adopt the cached keys once hydration is done. This is what the cache was
+  // for — showing the right navigation before the database round-trip
+  // finishes — and after the first commit it can no longer desynchronise the
+  // client from the server HTML.
+  useEffect(() => {
+    const cached = readPermCache();
+    if (!cached) return;
+    setGrantedKeys((current) =>
+      current.length === cached.length &&
+      current.every((key, i) => key === cached[i])
+        ? current
+        : cached,
+    );
+  }, []);
+  const userId = user?.id ?? null;
+  // Track whether we have ever confirmed a live user session. Without this
+  // guard, a transient userId=null during component mount (e.g. getUser()
+  // network call still in-flight) would call clearPermCache() and wipe the
+  // cookie that SSR just seeded, causing a flicker on the next navigation.
+  const hadUserIdRef = useRef(false);
+  // isPermLoading tracks whether the DB fetch is in-flight. Starts true so
+  // consumers (e.g. PaymentsSidebar) can wait for data-loading="false" before
+  // asserting on permission-gated elements.
+  const [isPermLoading, setIsPermLoading] = useState(true);
+
+  useEffect(() => {
+    if (authLoading) return;
+
+    let isActive = true;
+
+    async function loadPermissions() {
+      if (!userId) {
+        // Only clear the cookie if we previously had a confirmed user session.
+        // This prevents wiping the SSR-seeded cookie on a transient null that
+        // occurs at mount before the auth state has fully resolved.
+        if (hadUserIdRef.current) {
+          clearPermCache();
+        }
+        if (isActive) setIsPermLoading(false);
+        return;
+      }
+      hadUserIdRef.current = true;
+
+      const [{ data, error }, { data: delegateData }] = await Promise.all([
+        supabase
+          .from("user_permissions")
+          .select(
+            "expires_at,resource_permissions!inner(permissions!inner(key))",
+          )
+          .eq("user_id", userId)
+          .eq("mode", "grant"),
+        supabase
+          .from("seller_admins")
+          .select("permissions")
+          .eq("admin_user_id", userId),
+      ]);
+
+      if (!isActive) return;
+
+      // If user_permissions fails we have no safe baseline — abort without caching.
+      if (error) {
+        setIsPermLoading(false);
+        return;
+      }
+      // seller_admins is best-effort; a failure leaves delegateData null and
+      // the loop below falls back to [] so user_permissions still takes effect.
+
+      const now = Date.now();
+      const uniqueKeys = new Set(
+        (data ?? [])
+          .filter((row) => !row.expires_at || Date.parse(row.expires_at) > now)
+          .map((row) => row.resource_permissions.permissions.key),
+      );
+
+      for (const row of delegateData ?? []) {
+        for (const key of row.permissions ?? []) {
+          uniqueKeys.add(key);
+        }
+      }
+
+      const keys = [...uniqueKeys].sort();
+      writePermCache(keys);
+      // Bail out when nothing changed so the nav doesn't re-render unnecessarily.
+      setGrantedKeys((prev) => {
+        const prevSorted = [...prev].sort();
+        if (prevSorted.length !== keys.length) return keys;
+        for (let i = 0; i < keys.length; i++) {
+          if (prevSorted[i] !== keys[i]) return keys;
+        }
+        return prev;
+      });
+      setIsPermLoading(false);
+    }
+
+    void loadPermissions();
+
+    return () => {
+      isActive = false;
+    };
+  }, [authLoading, supabase, userId]);
+
+  return {
+    grantedKeys,
+    isAuthenticated,
+    isLoading: authLoading || isPermLoading,
+    hasPermission: (
+      required: string | readonly string[],
+      mode: PermissionRequirementMode = "all",
+    ) => matchesPermissions(grantedKeys, required, mode),
+  };
+}

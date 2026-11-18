@@ -1,0 +1,172 @@
+/**
+ * Shared Color Variables — Neobrutalist Libra
+ *
+ * Bubblegum libra colors for light (:root) and dark (.dark) modes.
+ * Single source of truth for ALL apps in the monorepo.
+ */
+
+:root {
+  --font-sans: var(--font-dm-sans);
+  --font-display: var(--font-syne);
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --surface: oklch(1 0 0);
+  --card: var(--surface);
+  --card-foreground: oklch(0.145 0 0);
+
+  /* Brand — bubblegum pink */
+  --brand: oklch(0.65 0.22 350);
+  --brand-hover: oklch(0.54 0.2 350);
+  --brand-text: oklch(0.65 0.22 350);
+  --brand-alpha: oklch(0.65 0.22 350 / 10%);
+  --brand-foreground: oklch(0.145 0 0);
+  --primary: var(--brand);
+  --primary-foreground: var(--brand-foreground);
+  --secondary: oklch(0.96 0.03 300);
+  --secondary-foreground: oklch(0.145 0 0);
+  --muted: oklch(0.95 0 0);
+  --muted-foreground: oklch(0.44 0 0);
+  --accent: oklch(0.83 0.13 165);
+  --accent-foreground: oklch(0.145 0 0);
+  --border: oklch(0.145 0 0);
+  --input: oklch(0.145 0 0);
+  --ring: oklch(0.62 0.22 350);
+
+  /* Libra palette — vivid fills (dark text passes WCAG 4.5:1+) */
+  --pink: oklch(0.65 0.22 350);
+  --mint: oklch(0.76 0.16 162);
+  --lilac: oklch(0.58 0.22 293);
+  --lemon: oklch(0.91 0.17 97);
+  --sky: oklch(0.6 0.13 240);
+  --peach: oklch(0.69 0.19 42);
+  --libra-text: oklch(0.145 0 0);
+  --libra-text-on-lemon: oklch(0.145 0 0);
+  --google-blue: oklch(0.6 0.18 262);
+  --google-green: oklch(0.65 0.16 148);
+  --google-yellow: oklch(0.82 0.17 83);
+  --google-red: oklch(0.59 0.2 25);
+
+  /* Shared theme compatibility */
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --destructive: oklch(0.51 0.23 15);
+  --destructive-foreground: oklch(1 0 0);
+  /* Dark text, not white. White on either of these mid-tone fills lands at
+     3.5:1 and 3.3:1 -- below the 4.5:1 WCAG AA needs for normal text. Pairing
+     them with --foreground gives 5.6:1 and 5.9:1. The dark theme already made
+     this choice for its own warning fill; this brings light into line.
+     contrast.test.ts enforces it. */
+  --success: oklch(0.61 0.17 148);
+  --success-foreground: oklch(0.145 0 0);
+  --warning: oklch(0.65 0.17 68);
+  --warning-foreground: oklch(0.145 0 0);
+  --info: oklch(0.52 0.22 262);
+  --info-foreground: oklch(1 0 0);
+  --chart-1: var(--pink);
+  --chart-2: var(--mint);
+  --chart-3: var(--lilac);
+  --chart-4: var(--lemon);
+  --chart-5: var(--sky);
+  --sidebar: var(--surface);
+  --sidebar-foreground: var(--foreground);
+  --sidebar-accent: var(--accent);
+  --sidebar-accent-foreground: var(--accent-foreground);
+  --sidebar-border: var(--border);
+  --sidebar-ring: var(--ring);
+  --surface-inset: oklch(0.97 0 0);
+  --chip: oklch(0.92 0 0);
+  --radius: 0.5rem;
+
+  /* Process status colors */
+  --status-healthy: oklch(0.97 0.05 148);
+  --status-attention: oklch(0.98 0.06 97);
+
+  /* Shadows */
+  --shadow-card: 3px 3px 0 0 oklch(0.145 0 0);
+
+  /* Neobrutalist tokens */
+  --border-strong: 3px solid oklch(0.145 0 0);
+  --shadow-brutal-sm: 3px 3px 0 0 oklch(0.145 0 0);
+  --shadow-brutal-md: 5px 5px 0 0 oklch(0.145 0 0);
+  --shadow-brutal-lg: 8px 8px 0 0 oklch(0.145 0 0);
+}
+
+.dark {
+  --background: oklch(0.09 0.005 286);
+  --foreground: oklch(0.97 0 0);
+  --surface: oklch(0.15 0.005 286);
+  --card: var(--surface);
+  --card-foreground: oklch(0.97 0 0);
+  --brand: oklch(0.46 0.17 352);
+  --brand-hover: oklch(0.4 0.15 352);
+  --brand-text: oklch(0.72 0.18 350);
+  --brand-alpha: oklch(0.46 0.17 352 / 12%);
+  --brand-foreground: oklch(0.97 0 0);
+  --primary: var(--brand);
+  --primary-foreground: var(--brand-foreground);
+  --secondary: oklch(0.16 0.02 300);
+  --secondary-foreground: oklch(0.83 0.03 300);
+  --muted: oklch(0.15 0.005 286);
+  /* 0.57 measured 4.39:1 against the dark page as actually rendered -- below
+     AA. The token pair passed on its own because the rendered background is
+     composited and darker than --background alone, which a token-level check
+     cannot model. 0.61 gives 5.19:1 there and 5.47:1 against --background. */
+  --muted-foreground: oklch(0.61 0 0);
+  --accent: oklch(0.83 0.14 162);
+  --accent-foreground: oklch(0.09 0.005 286);
+  --border: oklch(0.97 0 0);
+  --input: oklch(0.97 0 0);
+  --ring: oklch(0.72 0.18 350);
+
+  /* Libra palette — deep fills for dark mode (white text passes WCAG 4.5:1+) */
+  --pink: oklch(0.46 0.17 352);
+  --mint: oklch(0.47 0.11 155);
+  --lilac: oklch(0.41 0.14 293);
+  --lemon: oklch(0.49 0.12 83);
+  --sky: oklch(0.41 0.1 240);
+  --peach: oklch(0.47 0.11 55);
+  --libra-text: oklch(0.97 0 0);
+  --libra-text-on-lemon: oklch(0.97 0 0);
+  --google-blue: oklch(0.6 0.18 262);
+  --google-green: oklch(0.65 0.16 148);
+  --google-yellow: oklch(0.82 0.17 83);
+  --google-red: oklch(0.59 0.2 25);
+
+  /* Shared theme compatibility — dark mode */
+  --popover: oklch(0.15 0.005 286);
+  --popover-foreground: oklch(0.97 0 0);
+  --destructive: oklch(0.62 0.22 10);
+  --destructive-foreground: oklch(0.09 0.005 286);
+  --success: oklch(0.72 0.19 148);
+  --success-foreground: oklch(0.09 0.005 286);
+  --warning: oklch(0.75 0.18 75);
+  --warning-foreground: oklch(0.09 0.005 286);
+  --info: oklch(0.62 0.19 255);
+  --info-foreground: oklch(0.09 0.005 286);
+  --chart-1: var(--pink);
+  --chart-2: var(--mint);
+  --chart-3: var(--lilac);
+  --chart-4: var(--lemon);
+  --chart-5: var(--sky);
+  --sidebar: var(--surface);
+  --sidebar-foreground: var(--foreground);
+  --sidebar-accent: var(--accent);
+  --sidebar-accent-foreground: var(--accent-foreground);
+  --sidebar-border: var(--border);
+  --sidebar-ring: var(--ring);
+  --surface-inset: oklch(0.11 0.005 286);
+  --chip: oklch(0.21 0.005 286);
+
+  /* Process status colors */
+  --status-healthy: oklch(0.29 0.04 240);
+  --status-attention: oklch(0.28 0.04 80);
+
+  /* Shadows */
+  --shadow-card: 3px 3px 0 0 oklch(0.97 0 0);
+
+  /* Neobrutalist tokens */
+  --border-strong: 3px solid oklch(0.97 0 0);
+  --shadow-brutal-sm: 3px 3px 0 0 oklch(0.97 0 0);
+  --shadow-brutal-md: 5px 5px 0 0 oklch(0.97 0 0);
+  --shadow-brutal-lg: 8px 8px 0 0 oklch(0.97 0 0);
+}

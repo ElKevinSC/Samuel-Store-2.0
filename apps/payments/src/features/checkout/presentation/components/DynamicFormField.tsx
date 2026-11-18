@@ -1,0 +1,87 @@
+"use client";
+
+import { useLocale } from "next-intl";
+import { useId } from "react";
+import { i18nField, tid } from "shared";
+import { cn } from "ui";
+
+import type { FormField } from "@/shared/domain/PaymentMethodTypes";
+
+interface DynamicFormFieldProps {
+  field: FormField;
+  value: string;
+  onChange: (value: string) => void;
+  disabled?: boolean;
+  error?: string | null;
+}
+
+export function DynamicFormField({
+  field,
+  value,
+  onChange,
+  disabled = false,
+  error,
+}: DynamicFormFieldProps) {
+  const locale = useLocale();
+  const inputId = useId();
+
+  const label = i18nField(field, "label", locale) || field.label_en;
+  const placeholder = i18nField(field, "placeholder", locale) || "";
+
+  const baseInputClass =
+    "flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-foreground";
+
+  function renderInput() {
+    if (field.type === "textarea") {
+      return (
+        <textarea
+          id={inputId}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={placeholder}
+          disabled={disabled}
+          rows={3}
+          className={cn(baseInputClass, "resize-y")}
+        />
+      );
+    }
+    return (
+      <input
+        id={inputId}
+        type={field.type}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        disabled={disabled}
+        className={cn(baseInputClass, "h-10")}
+      />
+    );
+  }
+
+  return (
+    <div className="flex flex-col gap-1" {...tid(`dynamic-field-${field.id}`)}>
+      <label htmlFor={inputId} className="text-sm font-semibold">
+        {label}
+        {field.required && (
+          <span
+            className="ml-1 text-destructive"
+            {...tid("dynamic-field-required")}
+          >
+            *
+          </span>
+        )}
+      </label>
+
+      {renderInput()}
+
+      {error && (
+        <p
+          className="text-xs text-destructive"
+          {...tid(`dynamic-field-${field.id}-error`)}
+        >
+          {error}
+        </p>
+      )}
+    </div>
+  );
+}

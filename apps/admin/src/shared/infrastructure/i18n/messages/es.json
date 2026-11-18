@@ -1,0 +1,476 @@
+{
+  "meta": {
+    "title": "Libra - Admin",
+    "description": "Gestión de inventario, órdenes, promos y cupones"
+  },
+  "admin": {
+    "title": "Centro de Comando",
+    "subtitle": "Operaciones y monitoreo del back-office"
+  },
+  "nav": {
+    "brand": "Libra",
+    "landing": "Inicio",
+    "store": "Tienda",
+    "studio": "Estudio",
+    "payments": "Pagos",
+    "admin": "Admin",
+    "auth": "Cuenta"
+  },
+  "sidebar": {
+    "auditLog": "Registro de Auditoría",
+    "dashboard": "Panel",
+    "templates": "Plantillas",
+    "content": "Contenido",
+    "collapse": "Colapsar barra lateral",
+    "expand": "Expandir barra lateral",
+    "operations": "Operaciones",
+    "monitoring": "Monitoreo",
+    "system": "Sistema",
+    "version": "UNCOMPUTABLE",
+    "status": "Todos los sistemas nominales",
+    "settings": "Configuracion",
+    "configuration": "Configuracion",
+    "users": "Usuarios",
+    "userManagement": "Gestion de Usuarios",
+    "salesReport": "Reporte de Ventas"
+  },
+  "dashboard": {
+    "welcome": "Buen día, operador.",
+    "overview": "Resumen del Sistema",
+    "recentActivity": "Actividad Reciente",
+    "quickActions": "Acciones Rápidas",
+    "viewAuditLog": "Ver Registro de Auditoría",
+    "stats": {
+      "totalEvents": "Eventos Totales",
+      "tablesMonitored": "Tablas Monitoreadas",
+      "activeUsers": "Usuarios Activos",
+      "uptime": "Tiempo Activo"
+    },
+    "activity": {
+      "noActivity": "No hay actividad reciente registrada",
+      "inserted": "insertó en",
+      "updated": "actualizó",
+      "deleted": "eliminó de"
+    },
+    "systemStatus": {
+      "database": "Base de Datos",
+      "auth": "Autenticación",
+      "storage": "Almacenamiento",
+      "realtime": "Tiempo Real",
+      "operational": "operacional",
+      "degraded": "degradado",
+      "down": "caído"
+    }
+  },
+  "audit": {
+    "title": "Registro de Auditoría",
+    "subtitle": "Seguimiento de todos los cambios en la plataforma",
+    "filters": {
+      "allTables": "Todas las Tablas",
+      "allActions": "Todas las Acciones",
+      "insert": "Inserción",
+      "update": "Actualización",
+      "delete": "Eliminación"
+    },
+    "table": {
+      "timestamp": "Cuándo",
+      "user": "Quién",
+      "tableName": "Tabla",
+      "action": "Acción",
+      "summary": "Cambios",
+      "loading": "Cargando...",
+      "noResults": "No se encontraron entradas de auditoría",
+      "error": "Error al cargar el registro de auditoría",
+      "loadMore": "Cargar Más",
+      "summaryNew": "Nuevo: {name}",
+      "summaryDeleted": "Eliminado: {name}",
+      "summaryMore": "{fields} +{count} más"
+    },
+    "detail": {
+      "changedFields": "Campos Modificados",
+      "fullRecord": "Registro Completo",
+      "oldValue": "Antes",
+      "newValue": "Después",
+      "field": "Campo",
+      "transactionId": "Transacción",
+      "user": "Usuario",
+      "copyUserId": "Copiar ID de Usuario",
+      "ip": "IP"
+    }
+  },
+  "templates": {
+    "title": "Plantillas de Producto",
+    "subtitle": "Gestiona plantillas de secciones para vendedores",
+    "addTemplate": "Agregar Plantilla",
+    "editTemplate": "Editar Plantilla",
+    "name": "Nombre de Plantilla",
+    "description": "Descripción",
+    "sections": "Secciones",
+    "sectionCount": "{count} {count, plural, one {sección} other {secciones}}",
+    "active": "Activo",
+    "noTemplates": "No hay plantillas aún",
+    "deleteConfirm": "¿Eliminar esta plantilla? Esta acción no se puede deshacer.",
+    "save": "Guardar",
+    "saving": "Guardando...",
+    "cancel": "Cancelar",
+    "newSection": "Agregar Sección",
+    "sectionName": "Nombre de Sección",
+    "sectionType": "Tipo",
+    "items": "Elementos",
+    "addItem": "Agregar Elemento",
+    "itemTitle": "Título del Elemento",
+    "itemDescription": "Descripción del Elemento",
+    "itemIcon": "Ícono",
+    "nameEn": "Nombre de Plantilla (EN)",
+    "nameEs": "Nombre de Plantilla (ES)",
+    "descriptionEn": "Descripción (EN)",
+    "descriptionEs": "Descripción (ES)",
+    "sectionNameEn": "Nombre de Sección (EN)",
+    "sectionNameEs": "Nombre de Sección (ES)",
+    "itemTitleEn": "Título del Elemento (EN)",
+    "itemTitleEs": "Título del Elemento (ES)",
+    "itemDescEn": "Descripción del Elemento (EN)",
+    "itemDescEs": "Descripción del Elemento (ES)",
+    "removeItem": "Eliminar elemento",
+    "removeSection": "Eliminar seccion",
+    "deleteTemplate": "Eliminar plantilla"
+  },
+  "settings": {
+    "title": "Configuracion de Plataforma",
+    "subtitle": "Configuracion global de la plataforma",
+    "timeouts": {
+      "title": "Tiempos de Pago",
+      "awaitingPayment": "Esperando Pago",
+      "awaitingPaymentHint": "Horas antes de que expire una orden sin pagar",
+      "pendingVerification": "Verificacion Pendiente",
+      "pendingVerificationHint": "Horas que el vendedor tiene para verificar el comprobante",
+      "evidenceRequested": "Evidencia Solicitada",
+      "evidenceRequestedHint": "Horas que el comprador tiene para reenviar la evidencia",
+      "hours": "horas"
+    },
+    "save": "Guardar Configuracion",
+    "saving": "Guardando...",
+    "saved": "Configuracion actualizada",
+    "error": "Error al guardar configuracion"
+  },
+  "users": {
+    "title": "Usuarios",
+    "subtitle": "Gestionar cuentas de usuario y permisos",
+    "searchPlaceholder": "Filtrar por email o nombre...",
+    "noResults": "No se encontraron usuarios",
+    "loading": "Cargando...",
+    "profiles": "Perfiles",
+    "templateBuyer": "Comprador",
+    "templateSeller": "Vendedor",
+    "templateAdmin": "Admin",
+    "templateEvents": "Eventos",
+    "templateNone": "Quitar Todo",
+    "columns": {
+      "avatar": "Avatar",
+      "email": "Email",
+      "displayName": "Nombre",
+      "role": "Rol",
+      "lastSeen": "Ultima vez"
+    },
+    "roles": {
+      "admin": "Admin",
+      "seller": "Vendedor",
+      "buyer": "Comprador",
+      "custom": "Personalizado",
+      "none": "Ninguno"
+    },
+    "filters": {
+      "allRoles": "Todos los Roles",
+      "allItems": "Todos los Articulos",
+      "hasItems": "Con Articulos",
+      "noItems": "Sin Articulos",
+      "roleFilterLabel": "Filtrar por rol",
+      "itemFilterLabel": "Filtrar por artículos"
+    },
+    "exportCsv": "Exportar Seleccionados como CSV",
+    "exportExcel": "Exportar Seleccionados como Excel",
+    "exportError": "Error al exportar usuarios. Por favor intente de nuevo.",
+    "groups": {
+      "products": "Productos",
+      "reviews": "Resenas",
+      "orders": "Ordenes y Comprobantes",
+      "seller": "Vendedor",
+      "adminCatalog": "Catalogo Admin",
+      "adminConfig": "Configuracion Admin",
+      "adminUsers": "Permisos de Usuario",
+      "checkins": "Check-ins",
+      "events": "Eventos",
+      "sellerAdmins": "Gestion de Delegados",
+      "adminReports": "Reportes de Ventas",
+      "reports": "Reportes Delegados"
+    },
+    "lastSeen": {
+      "justNow": "justo ahora",
+      "minutesAgo": "hace {count}m",
+      "hoursAgo": "hace {count}h",
+      "daysAgo": "hace {count}d",
+      "monthsAgo": "hace {count} meses",
+      "yearsAgo": "hace {count} a"
+    },
+    "pagination": {
+      "showing": "Mostrando {from}-{to}",
+      "of": "de {total}",
+      "previous": "Página anterior",
+      "next": "Página siguiente"
+    },
+    "detail": {
+      "backToUsers": "Volver a Usuarios",
+      "viewProfile": "Ver Perfil",
+      "permissionsCount": "{count, plural, one {# permiso} other {# permisos}}"
+    },
+    "delegates": {
+      "title": "Relaciones de Delegados",
+      "loading": "Cargando delegados...",
+      "empty": "No se encontraron relaciones de delegados para este usuario.",
+      "asSeller": "Delegados a otros",
+      "asDelegate": "Delegado por otros",
+      "delegatedBy": "por",
+      "confirm": "Confirmar",
+      "cancel": "Cancelar",
+      "perm": {
+        "orders_approve": "Aprobar Ordenes",
+        "orders_request_proof": "Solicitar Comprobante"
+      }
+    },
+    "selection": {
+      "selectAll": "Seleccionar todos los usuarios de esta página",
+      "selectUser": "Seleccionar {name}"
+    }
+  },
+  "permissions": {
+    "products": {
+      "create": "Crear Productos",
+      "read": "Ver Productos",
+      "update": "Editar Productos",
+      "delete": "Eliminar Productos"
+    },
+    "product_reviews": {
+      "create": "Escribir Resenas",
+      "read": "Ver Resenas",
+      "update": "Editar Resenas",
+      "delete": "Eliminar Resenas"
+    },
+    "orders": {
+      "create": "Hacer Pedidos",
+      "read": "Ver Pedidos",
+      "update": "Gestionar Pedidos",
+      "approve": "Aprobar Pedidos",
+      "request_proof": "Solicitar Comprobante"
+    },
+    "receipts": {
+      "create": "Subir Recibos",
+      "read": "Ver Recibos",
+      "delete": "Eliminar Recibos"
+    },
+    "seller_payment_methods": {
+      "create": "Agregar Metodos de Pago del Vendedor",
+      "read": "Ver Metodos de Pago del Vendedor",
+      "update": "Editar Metodos de Pago del Vendedor",
+      "delete": "Eliminar Metodos de Pago del Vendedor"
+    },
+    "payment_settings": {
+      "read": "Ver Configuracion de Pagos",
+      "update": "Editar Configuracion de Pagos"
+    },
+    "templates": {
+      "create": "Crear Plantillas",
+      "read": "Ver Plantillas",
+      "update": "Editar Plantillas",
+      "delete": "Eliminar Plantillas"
+    },
+    "audit": {
+      "read": "Ver Registro de Auditoria"
+    },
+    "user_permissions": {
+      "create": "Otorgar Permisos",
+      "read": "Ver Permisos de Usuario",
+      "update": "Modificar Permisos",
+      "delete": "Revocar Permisos"
+    },
+    "users": {
+      "export": "Exportar Datos de Usuarios"
+    },
+    "admin": {
+      "reports": "Reportes de Ventas"
+    },
+    "events": {
+      "create": "Crear Eventos",
+      "read": "Ver Eventos",
+      "update": "Editar Eventos",
+      "delete": "Eliminar Eventos"
+    },
+    "check_ins": {
+      "create": "Registrar Entrada",
+      "read": "Ver Check-ins",
+      "update": "Deshacer Check-in"
+    },
+    "seller_admins": {
+      "create": "Agregar Delegados",
+      "read": "Ver Delegados",
+      "update": "Editar Delegados",
+      "delete": "Eliminar Delegados"
+    },
+    "reports": {
+      "read": "Ver Reportes Delegados",
+      "export": "Exportar Reportes Delegados"
+    }
+  },
+  "permissionHints": {
+    "products": {
+      "create": "Crear nuevos productos en el catalogo de la tienda",
+      "read": "Ver detalles de productos, precios e inventario",
+      "update": "Editar nombres, descripciones, precios y stock de productos",
+      "delete": "Eliminar productos permanentemente del catalogo"
+    },
+    "product_reviews": {
+      "create": "Escribir resenas sobre productos comprados",
+      "read": "Ver resenas dejadas por otros compradores",
+      "update": "Editar resenas propias despues de publicarlas",
+      "delete": "Eliminar resenas propias"
+    },
+    "orders": {
+      "create": "Realizar nuevas ordenes e iniciar el pago",
+      "read": "Ver historial de ordenes y estado",
+      "update": "Aprobar, rechazar o solicitar evidencia en ordenes",
+      "approve": "Aprobar ordenes despues de revisar el comprobante de pago",
+      "request_proof": "Solicitar comprobante de pago al comprador antes de aprobar"
+    },
+    "receipts": {
+      "create": "Subir comprobantes de pago como prueba",
+      "read": "Ver comprobantes de pago subidos",
+      "delete": "Eliminar comprobantes de pago subidos"
+    },
+    "seller_payment_methods": {
+      "create": "Agregar nuevos metodos de pago para compradores",
+      "read": "Ver metodos de pago configurados",
+      "update": "Editar detalles y campos de metodos de pago",
+      "delete": "Eliminar metodos de pago"
+    },
+    "payment_settings": {
+      "read": "Ver configuracion de tiempos de pago de la plataforma",
+      "update": "Cambiar tiempos de expiracion y configuracion de pagos"
+    },
+    "templates": {
+      "create": "Crear plantillas de permisos para asignacion rapida de roles",
+      "read": "Ver plantillas de permisos disponibles",
+      "update": "Editar configuraciones de plantillas de permisos",
+      "delete": "Eliminar plantillas de permisos"
+    },
+    "audit": {
+      "read": "Ver el registro de auditoria de todos los cambios en la base de datos"
+    },
+    "user_permissions": {
+      "create": "Otorgar permisos a otros usuarios",
+      "read": "Ver que permisos tienen los usuarios",
+      "update": "Modificar permisos otorgados existentes",
+      "delete": "Revocar permisos de usuarios"
+    },
+    "users": {
+      "export": "Exportar usuarios seleccionados y respaldos de comprobantes desde la tabla de usuarios"
+    },
+    "admin": {
+      "reports": "Ver y exportar todos los datos de ventas de la plataforma incluyendo ordenes y recibos"
+    },
+    "events": {
+      "create": "Crear nuevos eventos en el sistema",
+      "read": "Ver detalles y horarios de eventos",
+      "update": "Editar informacion y configuracion de eventos",
+      "delete": "Eliminar eventos del sistema"
+    },
+    "check_ins": {
+      "create": "Registrar asistentes en eventos",
+      "read": "Ver registros de asistencia y check-in",
+      "update": "Deshacer o modificar registros de check-in"
+    },
+    "seller_admins": {
+      "create": "Permitir al usuario agregar delegados para sus productos",
+      "read": "Permitir al usuario ver sus delegados de productos",
+      "update": "Permitir al usuario editar permisos de delegados",
+      "delete": "Permitir al usuario eliminar delegados de sus productos"
+    },
+    "reports": {
+      "read": "Ver el reporte de ventas de los productos delegados",
+      "export": "Exportar el reporte de ventas delegado a Excel"
+    }
+  },
+  "reports": {
+    "title": "Reporte de Ventas",
+    "subtitle": "Ver y exportar toda la actividad de ventas en la plataforma",
+    "filters": {
+      "dateFrom": "Desde",
+      "dateTo": "Hasta",
+      "status": "Estado",
+      "allStatuses": "Todos los Estados",
+      "seller": "Vendedor",
+      "allSellers": "Todos los Vendedores",
+      "buyer": "Comprador",
+      "allBuyers": "Todos los Compradores",
+      "product": "Producto",
+      "allProducts": "Todos los Productos",
+      "currency": "Moneda",
+      "allCurrencies": "Todas las Monedas",
+      "amountMin": "Monto Mínimo",
+      "amountMax": "Monto Máximo",
+      "clearFilters": "Limpiar Filtros"
+    },
+    "table": {
+      "orderId": "ID Orden",
+      "date": "Fecha",
+      "buyer": "Comprador",
+      "seller": "Vendedor",
+      "product": "Producto",
+      "status": "Estado",
+      "currency": "Moneda",
+      "amount": "Monto",
+      "transferNumber": "N° Transferencia",
+      "receipt": "Recibo",
+      "hasReceipt": "Sí",
+      "noReceipt": "No"
+    },
+    "status": {
+      "pending": "Pendiente",
+      "awaiting_payment": "Esperando Pago",
+      "pending_verification": "Verificacion Pendiente",
+      "evidence_requested": "Evidencia Solicitada",
+      "approved": "Aprobado",
+      "rejected": "Rechazado",
+      "expired": "Expirado"
+    },
+    "noResults": "No hay ordenes que coincidan con los filtros seleccionados",
+    "loading": "Cargando ordenes...",
+    "error": "Error al cargar el reporte de ventas",
+    "exportExcel": "Exportar a Excel",
+    "exporting": "Exportando...",
+    "exportError": "Error al exportar. Por favor intente de nuevo.",
+    "totalOrders": "{count, plural, one {# orden} other {# ordenes}}"
+  },
+  "common": {
+    "loading": "Cargando...",
+    "accessDenied": "Acceso denegado",
+    "accessDeniedHint": "Esta seccion permanece oculta hasta que se otorgue el permiso requerido.",
+    "error": "Ocurrió un error",
+    "retry": "Intentar de nuevo",
+    "theme": {
+      "switchToDark": "Cambiar a modo oscuro",
+      "switchToLight": "Cambiar a modo claro",
+      "toggle": "Cambiar tema"
+    },
+    "language": {
+      "select": "Seleccionar idioma"
+    },
+    "feedback": "Comentarios"
+  },
+  "env": {
+    "title": "Variables de entorno",
+    "notEnabled": "ENV_DEBUG no está habilitado. Configura ENV_DEBUG=true en tu archivo de entorno.",
+    "notSet": "no configurado",
+    "summary": "TARGET_ENV={targetEnv} · NODE_ENV={nodeEnv} · {count} variables",
+    "key": "Clave",
+    "value": "Valor"
+  }
+}

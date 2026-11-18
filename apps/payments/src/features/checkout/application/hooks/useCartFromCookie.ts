@@ -1,0 +1,131 @@
+"use client";
+
+import { useQuery } from "@tanstack/react-query";
+import { createBrowserSupabaseClient } from "api/supabase";
+import { useLocale } from "next-intl";
+import { useCallback, useMemo, useSyncExternalStore } from "react";
+import { i18nField } from "shared";
+import type { CartCookieItem } from "shared/types";
+
+import { useSellerProfiles } from "./useSellerProfiles";
+
+import type { CartItem, SellerGroup } from "@/features/checkout/domain/types";
+import {
+  readCartFromCookie,
+  subscribeToCartCookie,
+} from "@/features/checkout/infrastructure/cartCookie";
+import { fetchCheckoutProductsByIds } from "@/features/checkout/infrastructure/checkoutQueries";
+import { FALLBACK_SELLER_NAME } from "@/shared/domain/constants";
+import { CHECKOUT_CART_PRODUCTS_QUERY_KEY } from "@/shared/domain/queryKeys";
+
+/** Stable empty array so the server snapshot reference never changes. */
+const EMPTY_COOKIE_ITEMS: CartCookieItem[] = [];
+const EMPTY_PRODUCTS: Array<Omit<CartItem, "quantity" | "rawQuantity">> = [];
+
+function getSnapshot(): CartCookieItem[] {
+  return readCartFromCookie();
+}
+
+function getServerSnapshot(): CartCookieItem[] {
+  return EMPTY_COOKIE_ITEMS;
+}
+
+/**
+ * Reads the cart from the cookie, groups items by seller,
+ * and resolves seller display names.
+ */
+export function useCartFromCookie() {
+  const locale = useLocale();
+  const supabase = useMemo(() => createBrowserSupabaseClient(), []);
+  const cookieItems = useSyncExternalStore(
+    subscribeToCartCookie,
+    getSnapshot,
+    getServerSnapshot,
+  );
+  const isHydrated = cookieItems !== EMPTY_COOKIE_ITEMS;
+
+  const cartIds = useMemo(
+    () => cookieItems.map((item) => item.id),
+    [cookieItems],
+  );
+  const { data: products = EMPTY_PRODUCTS, isLoading: isLoadingProducts } =
+    useQuery({
+      queryKey: [CHECKOUT_CART_PRODUCTS_QUERY_KEY, cartIds],
+      queryFn: () => fetchCheckoutProductsByIds(supabase, cartIds),
+      enabled: cartIds.length > 0,
+      staleTime: 30_000,
+    });
+
+  const productById = useMemo(
+    () => new Map(products.map((product) => [product.id, product])),
+    [products],
+  );
+
+  const items: CartItem[] = useMemo(
+    () =>
+      cookieItems
+        .map((cookieItem) => {
+          const product = productById.get(cookieItem.id);
+          if (!product) return null;
+
+          const maxQuantity =
+            typeof product.max_quantity === "number"
+              ? product.max_quantity
+              : null;
+          const quantity =
+            maxQuantity === null
+              ? cookieItem.quantity
+              : Math.min(cookieItem.quantity, maxQuantity);
+
+          return {
+            ...product,
+            quantity,
+            rawQuantity: cookieItem.quantity,
+          } as CartItem;
+        })
+        .filter((item): item is CartItem => item !== null),
+    [cookieItems, productById],
+  );
+
+  const sellerIds = useMemo(() => {
+    const ids = new Set<string>();
+    for (const item of items) {
+      if (item.seller_id) ids.add(item.seller_id);
+    }
+    return [...ids];
+  }, [items]);
+
+  const { data: sellerNames, isLoading: isLoadingProfiles } =
+    useSellerProfiles(sellerIds);
+
+  const groups: SellerGroup[] = useMemo(() => {
+    const map = new Map<string, CartItem[]>();
+    for (const item of items) {
+      const key = item.seller_id ?? "unknown";
+      const existing = map.get(key) ?? [];
+      existing.push(item);
+      map.set(key, existing);
+    }
+
+    return [...map.entries()].map(([sellerId, sellerItems]) => ({
+      sellerId,
+      sellerName: sellerNames?.[sellerId] ?? FALLBACK_SELLER_NAME,
+      items: sellerItems,
+      subtotal: sellerItems.reduce(
+        (sum, item) => sum + item.price * item.quantity,
+        0,
+      ),
+      currency: sellerItems[0]?.currency ?? "USD",
+    }));
+  }, [items, sellerNames]);
+
+  const isEmpty = isHydrated && !isLoadingProducts && items.length === 0;
+  const isLoading = !isHydrated || isLoadingProducts || isLoadingProfiles;
+
+  const getItemName = useCallback(
+    (item: CartItem) => i18nField(item, "name", locale),
+    [locale],
+  );
+
+  return { groups, isEmpty, isLoading, getItemName };
+}

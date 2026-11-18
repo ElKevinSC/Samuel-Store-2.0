@@ -1,0 +1,32 @@
+{
+  "landing": {
+    "envKey": "NEXT_PUBLIC_LANDING_URL",
+    "path": "/",
+    "port": 5004
+  },
+  "store": {
+    "envKey": "NEXT_PUBLIC_STORE_URL",
+    "path": "/store",
+    "port": 5001
+  },
+  "admin": {
+    "envKey": "NEXT_PUBLIC_ADMIN_URL",
+    "path": "/admin",
+    "port": 5002
+  },
+  "payments": {
+    "envKey": "NEXT_PUBLIC_PAYMENTS_URL",
+    "path": "/payments",
+    "port": 5005
+  },
+  "studio": {
+    "envKey": "NEXT_PUBLIC_STUDIO_URL",
+    "path": "/studio",
+    "port": 5006
+  },
+  "auth": {
+    "envKey": "NEXT_PUBLIC_AUTH_URL",
+    "path": "/auth",
+    "port": 5000
+  }
+}

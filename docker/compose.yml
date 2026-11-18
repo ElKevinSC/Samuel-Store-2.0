@@ -1,0 +1,55 @@
+# Docker Compose for the libra app container.
+# All values are sourced from the active env file — no hardcoded values.
+#
+# Usage (via docker-build.mjs):
+#   docker compose -f docker/compose.yml --env-file .env.<targetEnv> up -d
+#
+# Variables resolved from the env file:
+#   SITE_PROD_IMAGE_NAME     — Docker image to run (built by docker-build.mjs)
+#   SITE_PROD_CONTAINER_NAME — Name for the running container
+#   HOST_PORT                — Host port to bind the container on
+
+services:
+  app:
+    image: ${SITE_PROD_IMAGE_NAME}
+    container_name: ${SITE_PROD_CONTAINER_NAME}
+    ports:
+      # Loopback only: in production a Cloudflare Tunnel on the same host is
+      # the only client, so the box exposes no inbound port but SSH.
+      - "127.0.0.1:${HOST_PORT}:8080"
+    restart: unless-stopped
+    # Production co-locates with a latency-sensitive audio bridge on a
+    # 1 vCPU / 961 MB box. A Next.js leak must kill this container, never the
+    # bridge, and SSR bursts must not monopolise the core.
+    mem_limit: 600m
+    memswap_limit: 1500m
+    cpus: 0.75
+    pids_limit: 1024
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O-", "http://127.0.0.1:8080/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 60s
+    environment:
+      # Clerk's server-side secret. Never a --build-arg (must not be baked
+      # into the client bundle) — the container's Clerk middleware reads it
+      # from its runtime environment, so it must be injected here.
+      - CLERK_SECRET_KEY=${CLERK_SECRET_KEY:-}
+      # Runtime overrides — allow the container to reach a local Supabase
+      # instance (e.g. during e2e) without a full image rebuild.
+      # These are only injected when the variables are set in the host env.
+      - SUPABASE_URL_INTERNAL=${SUPABASE_URL_INTERNAL:-}
+      - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY:-}
+      # Boot report to Telegram (docker/boot-reporter.mjs); empty disables it.
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN:-}
+      - TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID:-}
+      - TELEGRAM_THREAD_ID=${TELEGRAM_THREAD_ID:-}
+    extra_hosts:
+      # Allow the container to reach host-local services (e.g. Supabase on
+      # localhost:64321) via host.docker.internal on Linux/Windows/Mac.
+      - "host.docker.internal:host-gateway"

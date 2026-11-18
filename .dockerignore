@@ -1,0 +1,118 @@
+# Dependencies — use specific paths, NOT **/node_modules.
+# .next/standalone/node_modules contains runtime deps that MUST be in the image.
+node_modules
+apps/*/node_modules
+packages/*/node_modules
+
+# Build outputs
+# NOTE: **/.next is intentionally NOT excluded — the production Dockerfile
+# copies pre-built .next/standalone and .next/static dirs from the build
+# context (rsynced by CI). Only the Next.js build cache is excluded.
+**/.next/cache
+**/dist
+**/build
+
+# Re-include standalone runtime deps traced by Next.js build.
+# MUST come after **/dist and **/build — last matching rule wins in .dockerignore.
+# node_modules above excludes standalone/node_modules; **/dist then re-excludes
+# next/dist/, react/cjs/, etc. inside it. These final re-includes restore all of
+# standalone/node_modules so the production container can find 'next', 'react', etc.
+#
+# NOTE: .npmrc sets node-linker=hoisted so pnpm creates real directories (not
+# symlinks) in node_modules. This is required because actions/upload-artifact uses
+# ZIP format which strips symlinks — without hoisted linker the top-level
+# `node_modules/next` symlink is lost in the CI artifact round-trip and the
+# container cannot find the 'next' module at runtime.
+!apps/**/.next/standalone/node_modules
+!apps/**/.next/standalone/node_modules/**
+
+# Dev/test artifacts
+**/.turbo
+**/playwright-report
+**/test-results
+**/coverage
+**/.nyc_output
+
+# Environment files (secrets must be passed as build args)
+.env*
+.secrets
+
+# Git
+.git
+.gitignore
+
+# Editor
+.vscode
+.idea
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docs / AI context
+docs
+.ai-context
+.claude
+.agents
+*.md
+!apps/store/README.md
+
+# ── Build-context size reduction ──────────────────────────────────────
+# The Dockerfile only needs:
+#   apps/*/.next/{standalone,static}/   apps/*/public/   docker/
+# Exclude everything that is NOT required at docker build time.
+
+# Monorepo shared-package source (standalone bundles all runtime deps)
+packages
+
+# Deploy/build tooling scripts (not baked into the image)
+scripts
+
+# Database migrations and Supabase config
+supabase
+
+# TypeScript source files (pre-built by CI; artifacts already rsynced)
+apps/*/src
+
+# .next/server/ — SSR chunks from the standard Next.js build.
+# Standalone mode ships its own server.js; the server/ dir is NOT needed.
+apps/*/.next/server
+
+# .next/types/ — TypeScript declarations emitted during build
+apps/*/.next/types
+
+# .next/analyze/ — bundle-analyser output (optional, only present when ANALYZE=true)
+apps/*/.next/analyze
+
+# Root-level workspace/tooling config files (not needed in the image)
+package.json
+pnpm-lock.yaml
+pnpm-workspace.yaml
+tsconfig.json
+tsconfig.base.json
+orval.config.ts
+turbo.json
+*.config.mjs
+*.config.js
+
+# ── Source files re-included for docker/ci/Dockerfile ─────────────────────────
+# Rules above optimize context for docker/prod/Dockerfile (pre-built artifacts).
+# These negations re-include source that docker/ci/Dockerfile builds from source.
+# "Last matching rule wins" — these override the exclusions above.
+!packages
+!packages/**
+packages/*/node_modules
+packages/*/node_modules/**
+!apps/*/src
+!apps/*/src/**
+!package.json
+!pnpm-lock.yaml
+!pnpm-workspace.yaml
+!**/tsconfig.json
+!**/tsconfig.base.json
+!apps/*/*.config.mjs
+!apps/*/*.config.js
+!packages/*/*.config.mjs
+!packages/*/*.config.js

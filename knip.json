@@ -1,0 +1,125 @@
+{
+  "workspaces": {
+    ".": {
+      "entry": [
+        "scripts/**/*.mjs",
+        "docker/**/*.mjs",
+        "docker/ci/playwright.config.ts",
+        ".claude/tools/*.mjs",
+        "vitest.config.integration.ts",
+        "tests/db/**/*.ts"
+      ],
+      "project": ["scripts/**/*.mjs", "tests/**/*.ts", "docker/**/*.{mjs,ts}"],
+      "ignore": ["tests/legacy/**"]
+    },
+    "apps/admin": {
+      "entry": [
+        "src/app/**/*.{ts,tsx}",
+        "src/shared/infrastructure/i18n/request.ts",
+        "src/features/*/index.ts",
+        "tests/**/*.{ts,tsx}",
+        "e2e/**/*.ts"
+      ],
+      "project": [
+        "src/**/*.{ts,tsx,js,jsx}",
+        "tests/**/*.{ts,tsx}",
+        "e2e/**/*.ts"
+      ]
+    },
+    "apps/auth": {
+      "entry": [
+        "src/app/**/*.{ts,tsx}",
+        "src/shared/infrastructure/i18n/request.ts",
+        "src/features/*/index.ts",
+        "tests/**/*.{ts,tsx}",
+        "e2e/**/*.ts"
+      ],
+      "project": [
+        "src/**/*.{ts,tsx,js,jsx}",
+        "tests/**/*.{ts,tsx}",
+        "e2e/**/*.ts"
+      ]
+    },
+    "apps/landing": {
+      "entry": [
+        "src/app/**/*.{ts,tsx}",
+        "src/shared/infrastructure/i18n/request.ts",
+        "src/features/*/index.ts",
+        "tests/**/*.{ts,tsx}",
+        "e2e/**/*.ts"
+      ],
+      "project": [
+        "src/**/*.{ts,tsx,js,jsx}",
+        "tests/**/*.{ts,tsx}",
+        "e2e/**/*.ts"
+      ]
+    },
+    "apps/payments": {
+      "entry": [
+        "src/app/**/*.{ts,tsx}",
+        "src/shared/infrastructure/i18n/request.ts",
+        "src/features/*/index.ts",
+        "tests/**/*.{ts,tsx}",
+        "e2e/**/*.ts"
+      ],
+      "project": [
+        "src/**/*.{ts,tsx,js,jsx}",
+        "tests/**/*.{ts,tsx}",
+        "e2e/**/*.ts"
+      ]
+    },
+    "apps/store": {
+      "entry": [
+        "src/app/**/*.{ts,tsx}",
+        "src/shared/infrastructure/i18n/request.ts",
+        "src/features/*/index.ts",
+        "src/features/*/domain/index.ts",
+        "src/shared/domain/index.ts",
+        "tests/**/*.{ts,tsx}",
+        "e2e/**/*.ts"
+      ],
+      "project": [
+        "src/**/*.{ts,tsx,js,jsx}",
+        "tests/**/*.{ts,tsx}",
+        "e2e/**/*.ts"
+      ]
+    },
+    "apps/studio": {
+      "entry": [
+        "src/app/**/*.{ts,tsx}",
+        "src/shared/infrastructure/i18n/request.ts",
+        "src/features/*/index.ts",
+        "tests/**/*.{ts,tsx}"
+      ],
+      "project": ["src/**/*.{ts,tsx,js,jsx}", "tests/**/*.{ts,tsx}"]
+    },
+    "packages/api": {
+      "entry": ["tests/**/*.{ts,tsx}"],
+      "project": ["src/**/*.{ts,tsx}", "tests/**/*.{ts,tsx}"]
+    },
+    "packages/app-components": {
+      "entry": ["tests/**/*.{ts,tsx}"],
+      "project": ["src/**/*.{ts,tsx}", "tests/**/*.{ts,tsx}"]
+    },
+    "packages/auth": {
+      "entry": ["tests/**/*.{ts,tsx}"],
+      "project": ["src/**/*.{ts,tsx}", "tests/**/*.{ts,tsx}"]
+    },
+    "packages/shared": {
+      "entry": ["tests/**/*.{ts,tsx}"],
+      "project": ["src/**/*.{ts,tsx}", "tests/**/*.{ts,tsx}"]
+    },
+    "packages/ui": {
+      "entry": ["tests/**/*.{ts,tsx}"],
+      "project": ["src/**/*.{ts,tsx}", "tests/**/*.{ts,tsx}"]
+    }
+  },
+  "ignoreDependencies": [
+    "@faker-js/faker",
+    "@secretlint/secretlint-rule-preset-recommend",
+    "tailwindcss",
+    "tw-animate-css",
+    "ui"
+  ],
+  "ignoreBinaries": ["semgrep"]
+}

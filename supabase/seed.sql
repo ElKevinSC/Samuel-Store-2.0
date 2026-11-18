@@ -1,0 +1,3 @@
+-- Seed file — add initial data here that should be present on every fresh DB reset.
+-- The schema is created by migrations in supabase/migrations/.
+-- Run: pnpm supabase:reset

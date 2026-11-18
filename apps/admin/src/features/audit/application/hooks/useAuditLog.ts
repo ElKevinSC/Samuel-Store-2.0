@@ -1,0 +1,43 @@
+import { useQuery } from "@tanstack/react-query";
+
+import {
+  AUDIT_QUERY_KEY,
+  TABLE_NAMES_KEY,
+} from "@/features/audit/domain/constants";
+import type { AuditFilters } from "@/features/audit/domain/types";
+import {
+  fetchAuditLog,
+  fetchAuditTableNames,
+} from "@/features/audit/infrastructure/auditQueries";
+
+/** Keep data fresh for 30s so back-navigation shows cached results instantly */
+const STALE_TIME_MS = 30_000;
+
+interface UseAuditLogOptions {
+  filters?: Partial<AuditFilters>;
+  offset: number;
+  enabled?: boolean;
+}
+
+export function useAuditLog({
+  filters,
+  offset,
+  enabled = true,
+}: UseAuditLogOptions) {
+  const { data, isLoading, isError } = useQuery({
+    queryKey: [AUDIT_QUERY_KEY, filters, offset],
+    queryFn: () => fetchAuditLog(filters, offset),
+    staleTime: STALE_TIME_MS,
+    enabled,
+  });
+
+  return { data, isLoading, isError };
+}
+
+export function useAuditTableNames() {
+  return useQuery({
+    queryKey: [TABLE_NAMES_KEY],
+    queryFn: () => fetchAuditTableNames(),
+    staleTime: STALE_TIME_MS,
+  });
+}

@@ -1,0 +1,42 @@
+{
+  "name": "@monorepo/app-components",
+  "version": "0.1.0",
+  "private": true,
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./components": "./src/components/index.ts"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "cookies-next": "^6.1.1",
+    "lucide-react": "^1.11.0",
+    "next-intl": "^4.9.1",
+    "shared": "workspace:*",
+    "ui": "workspace:*"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@types/node": "^25.6.0",
+    "@types/react": "^19.2.14",
+    "@vitejs/plugin-react": "^6.0.1",
+    "@vitest/coverage-v8": "^4.1.5",
+    "axe-core": "^4.13.0",
+    "jsdom": "^29.1.0",
+    "next": "16.2.4",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.5",
+    "vitest-axe": "^0.1.0"
+  },
+  "peerDependencies": {
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4"
+  }
+}

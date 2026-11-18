@@ -1,0 +1,81 @@
+import { tid } from "shared";
+
+import type { CategoryTheme } from "@/features/products/domain/constants";
+import type { GalleryView } from "@/features/products/domain/GalleryTypes";
+import {
+  isProductAvailable,
+  type Product,
+} from "@/features/products/domain/types";
+
+interface GalleryOverlaysProps {
+  product: Product;
+  theme: CategoryTheme;
+  activeView: GalleryView | undefined;
+  activeIndex: number;
+  totalViews: number;
+  t: (key: string) => string;
+}
+
+const DOT_TEXTURE_STYLE = {
+  backgroundImage: "radial-gradient(circle, currentColor 1px, transparent 1px)",
+  backgroundSize: "20px 20px",
+} as const;
+
+/** Shared overlays for main image (dot texture, label, counter, badges) */
+export function GalleryOverlays({
+  product,
+  theme,
+  activeView,
+  activeIndex,
+  totalViews,
+  t,
+}: GalleryOverlaysProps) {
+  return (
+    <>
+      {/* Dot texture */}
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 opacity-[0.07]"
+        style={DOT_TEXTURE_STYLE}
+      />
+
+      {/* View label watermark. Decoration: 10% opacity over the category
+          colour, which axe measured at 1.22:1 against a required 3:1 in
+          ImageGallery's equivalent. Hidden for the same reason. */}
+      <span
+        aria-hidden="true"
+        className="relative font-display text-4xl font-extrabold uppercase tracking-widest text-foreground/10 select-none text-center px-6"
+      >
+        {activeView?.label}
+      </span>
+
+      {/* Counter */}
+      <div className="absolute bottom-2 right-2 bg-foreground text-background text-ui-xs font-bold px-2 py-0.5 tracking-widest">
+        {activeIndex + 1} / {totalViews}
+      </div>
+
+      {/* Featured */}
+      {product.featured && (
+        <span
+          className="absolute top-2 left-2 border-strong border-foreground px-2 py-0.5 text-ui-xs font-bold uppercase tracking-widest"
+          style={{ backgroundColor: theme.bg, color: theme.foreground }}
+          {...tid("hero-featured-badge")}
+        >
+          {t("featured")}
+        </span>
+      )}
+
+      {/* Out of stock */}
+      {!isProductAvailable(product) && (
+        <div
+          className="absolute inset-0 flex items-center justify-center bg-foreground/70 z-10"
+          {...tid("hero-out-of-stock")}
+        >
+          <span className="font-display text-xl font-extrabold uppercase tracking-widest text-background">
+            {t("outOfStock")}
+          </span>
+        </div>
+      )}
+    </>
+  );
+}
