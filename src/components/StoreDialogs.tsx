@@ -14,13 +14,24 @@ import { RenewDialog } from '@/features/streaming/RenewDialog'
 import { useStore } from '@/store/StoreProvider'
 
 export function StoreDialogs() {
-  const { modal, setModal, setMessage, cart, checkoutSession } = useStore()
+  const { modal, setModal, setMessage, cart, checkoutSession, renewItem } = useStore()
   const auth = useAuthDraft()
   const pay = usePaymentDraft()
 
   // Cada vez que se abre el pago desde el carrito se pide el ID o WhatsApp de nuevo.
   const { setPlayerId } = pay
   useEffect(() => { setPlayerId('') }, [checkoutSession, setPlayerId])
+
+  // Al elegir una cuenta para renovar (desde Mis suscripciones o Mi negocio), el pago empieza limpio.
+  const { setReference, setDepositDate, setReceipt, setAcceptTerms, setAcceptService } = pay
+  useEffect(() => {
+    if (!renewItem) return
+    setReference('')
+    setDepositDate('')
+    setReceipt(null)
+    setAcceptTerms(false)
+    setAcceptService(false)
+  }, [renewItem, setReference, setDepositDate, setReceipt, setAcceptTerms, setAcceptService])
 
   return (
     <Dialog open={!!modal} onOpenChange={open => { if (!open) { setModal(null); setMessage('') } }}>
