@@ -3,6 +3,7 @@ import { useMemo } from 'react'
 import { ArrowRight, RefreshCw, ShoppingCart, Tv } from 'lucide-react'
 import { money } from '@/data/catalog'
 import { useMySubscriptions } from '@/features/streaming/useMySubscriptions'
+import { ResellerExpiring } from './ResellerExpiring'
 import { gtDate, fmtDate, prevMonthKey, todayGT } from '@/lib/dates'
 import { OPEN_ORDER_STATUSES, RESELLER_MIN, orderStatusLabel } from '@/store/constants'
 import { useStore } from '@/store/StoreProvider'
@@ -56,6 +57,8 @@ export function ResellerPanel() {
         </button>
       </div>
 
+      <ResellerExpiring />
+
       <div className="admin-form" style={{ padding: 18, marginBottom: 14 }}>
         <h3>Mi meta mensual · {money(RESELLER_MIN)}</h3>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 10, margin: '14px 0' }}>
@@ -95,9 +98,6 @@ export function ResellerPanel() {
         <div className="admin-form" style={{ padding: 18 }}>
           <h3>Mis cuentas de streaming</h3>
           <p>Tienes {activeSubs} cuenta{activeSubs === 1 ? '' : 's'} activa{activeSubs === 1 ? '' : 's'}. Cópialas o envíalas por WhatsApp a tus clientes.</p>
-          {counts.expiring > 0 && (
-            <p style={{ color: '#ffcc00', fontSize: 13 }}>⚠️ {counts.expiring} vence{counts.expiring === 1 ? '' : 'n'} en los próximos 5 días. Mándales un recordatorio.</p>
-          )}
           <button type="button" className="button secondary small" onClick={openSubs}>
             <Tv size={16} /> Ver mis cuentas
           </button>
