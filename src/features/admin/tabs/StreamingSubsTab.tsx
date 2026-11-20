@@ -10,7 +10,7 @@ import type { AdminData } from '../useAdminData'
 import type { DeliveryDrafts } from '../useDeliveryDrafts'
 
 export function StreamingSubsTab({ data, drafts }: { data: AdminData; drafts: DeliveryDrafts }) {
-  const { supabase, isAdmin, orders, inventory, showToast, refreshAdmin } = useStore()
+  const { supabase, isAdmin, orders, showToast, refreshAdmin } = useStore()
   const { adminSubs, revokedCount } = data
   const { getDel, setDel, editingDeliveredId, startEditingDelivered, cancelEditingDelivered, savingDeliveredId, setSavingDeliveredId } = drafts
 
@@ -30,35 +30,20 @@ export function StreamingSubsTab({ data, drafts }: { data: AdminData; drafts: De
       return
     }
     if (!window.confirm('¿Guardar los cambios de esta cuenta de streaming? El cliente verá los datos nuevos.')) return
-    const updates = {
-      delivery_email: d.email.trim(),
-      delivery_password: d.password.trim(),
-      delivery_profile: d.profile.trim(),
-      delivery_pin: d.pin.trim() || null,
-      ...(dateChanged ? { valid_until: d.valid_until } : {}),
-    }
     setSavingDeliveredId(it.id)
     try {
-      const { data: rows, error } = await supabase.from('order_items').update(updates).eq('id', it.id).select('id')
+      // Función solo para admin: actualiza al cliente y la copia del inventario a la vez.
+      const { error } = await supabase.rpc('admin_edit_delivery', {
+        p_item_id: it.id,
+        p_email: d.email.trim(),
+        p_password: d.password.trim(),
+        p_profile: d.profile.trim(),
+        p_pin: d.pin.trim(),
+        p_valid_until: d.valid_until,
+      })
       if (error) {
         showToast(`No se pudo guardar: ${error.message}`)
         return
-      }
-      if (!rows?.length) {
-        showToast('No se actualizó la cuenta. Revisa los permisos de administrador.')
-        return
-      }
-      // Mantener el inventario igual a lo que ve el cliente.
-      const account = it.inventory_account_id ? inventory?.find(a => a.id === it.inventory_account_id) : undefined
-      if (account) {
-        const { error: syncError } = await supabase.from('streaming_accounts').update({
-          email: updates.delivery_email,
-          password: updates.delivery_password,
-          pin: updates.delivery_pin,
-          ...(account.stream_type === 'profile' ? { profile_name: updates.delivery_profile } : {}),
-          updated_at: new Date().toISOString(),
-        }).eq('id', account.id)
-        if (syncError) showToast(`Cliente actualizado, pero el inventario no: ${syncError.message}`)
       }
       cancelEditingDelivered(it.id)
       await refreshAdmin()

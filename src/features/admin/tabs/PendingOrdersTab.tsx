@@ -31,7 +31,8 @@ export function PendingOrdersTab({ tab, data, drafts, onGoInventory }: Props) {
   async function updateOrder(id: string, status: 'completed' | 'rejected') {
     if (!window.confirm(status === 'completed' ? '¿Aprobar y completar este pedido?' : '¿Rechazar este pedido?')) return
     if (!isAdmin) return
-    const { error } = await supabase.from('orders').update({ status }).eq('id', id)
+    // La base de datos no permite editar pedidos directo: se usa una función solo para admin.
+    const { error } = await supabase.rpc('admin_set_order_status', { p_order_id: id, p_status: status })
     if (error) setMessage(`No se pudo actualizar el pedido: ${error.message}`)
     else await refreshAdmin()
   }
@@ -48,22 +49,12 @@ export function PendingOrdersTab({ tab, data, drafts, onGoInventory }: Props) {
       }
     }
     if (!window.confirm('¿Guardar los datos de la cuenta y completar este pedido?')) return
-    for (const it of items) {
+    // Guarda todas las cuentas y completa el pedido en un solo paso.
+    const deliveries = items.map(it => {
       const d = getDel(it)
-      const { error: itemError } = await supabase.from('order_items').update({
-        delivery_email: d.email.trim(),
-        delivery_password: d.password.trim(),
-        delivery_profile: d.profile.trim(),
-        delivery_pin: d.pin.trim() || null,
-        valid_until: d.valid_until,
-        delivered_at: new Date().toISOString(),
-      }).eq('id', it.id)
-      if (itemError) {
-        showToast(`No se pudo guardar la entrega: ${itemError.message}`)
-        return
-      }
-    }
-    const { error } = await supabase.from('orders').update({ status: 'completed' }).eq('id', o.id)
+      return { item_id: it.id, email: d.email.trim(), password: d.password.trim(), profile: d.profile.trim(), pin: d.pin.trim(), valid_until: d.valid_until }
+    })
+    const { error } = await supabase.rpc('admin_deliver_order', { p_order_id: o.id, p_deliveries: deliveries })
     if (error) showToast(`No se pudo completar el pedido: ${error.message}`)
     else {
       showToast('Pedido completado')
