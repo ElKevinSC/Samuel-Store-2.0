@@ -3,7 +3,7 @@ import { useMemo } from 'react'
 import { ArrowRight, RefreshCw, ShoppingCart, Tv } from 'lucide-react'
 import { money } from '@/data/catalog'
 import { useMySubscriptions } from '@/features/streaming/useMySubscriptions'
-import { ResellerExpiring } from './ResellerExpiring'
+import { ExpiringSubscriptions } from '@/features/streaming/ExpiringSubscriptions'
 import { gtDate, fmtDate, prevMonthKey, todayGT } from '@/lib/dates'
 import { OPEN_ORDER_STATUSES, RESELLER_MIN, orderStatusLabel } from '@/store/constants'
 import { useStore } from '@/store/StoreProvider'
@@ -57,7 +57,7 @@ export function ResellerPanel() {
         </button>
       </div>
 
-      <ResellerExpiring />
+      <ExpiringSubscriptions variant="reseller" />
 
       <div className="admin-form" style={{ padding: 18, marginBottom: 14 }}>
         <h3>Mi meta mensual · {money(RESELLER_MIN)}</h3>
